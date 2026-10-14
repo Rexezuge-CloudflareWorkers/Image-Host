@@ -1,0 +1,28 @@
+wrangler.jsonc
+worker-configuration.d.ts
+
+# Local only directory
+local/
+
+# Visual Studio Code
+.vscode/
+
+# Monorepo build outputs
+apps/web/dist
+apps/api/src/generated/spa-shell.ts
+
+# Logs
+logs
+*.log
+
+# Dependency directories
+node_modules/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Env files
+.env
+.env.local
+.dev.vars
+.wrangler/

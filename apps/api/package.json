@@ -1,0 +1,15 @@
+{
+  "name": "@image-host/api",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/index.ts",
+  "scripts": { "typecheck": "tsc --noEmit" },
+  "dependencies": {
+    "@image-host/backend-data": "workspace:*",
+    "@image-host/shared": "workspace:*",
+    "hono": "^4.13.12",
+    "chanfana": "^3.4.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": { "typescript": "^6.0.3", "@types/node": "^26.6.5" }
+}
