@@ -1,0 +1,40 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    // `ESNext`, matching `scripts/tsconfig.json` rather than the repo default
+    // `ES2022`. `test/scripts/*.test.ts` imports those modules, and `tsc` checks an
+    // imported file under the *importing* project's lib — so under ES2022 a test
+    // reaching `scripts/` reports `Property 'filter' does not exist on type
+    // 'MapIterator'` for code that is correct on its own.
+    "target": "ES2022",
+    "lib": ["ESNext", "DOM"],
+    // The SPA suites under `test/web/**` are `.tsx`. Without this, importing
+    // `@image-host/web/App` resolves the file correctly and then fails on the JSX
+    // in it — an error that names the flag rather than the import, which is a poor
+    // first experience for the file that starts the suite.
+    "jsx": "react-jsx",
+    "types": [
+      "vitest/globals",
+      "vite/client",
+      // `cloudflare:test` — `test/integration/**` runs under the Workers pool and
+      // imports it. Without this the module does not resolve, so typechecking those
+      // files means nothing. It is an ambient declaration inside the pool's own
+      // package, which is why it is named here rather than imported.
+      "@cloudflare/vitest-pool-workers/types"
+    ],
+    "paths": {
+      "@/*": ["../apps/api/src/*"],
+      "@image-host/backend-data": ["../packages/backend-data/src"],
+      "@image-host/backend-data/*": ["../packages/backend-data/src/*"],
+      "@image-host/backend-services": ["../packages/backend-services/src"],
+      "@image-host/backend-services/*": ["../packages/backend-services/src/*"],
+      "@image-host/provider-clients": ["../packages/provider-clients/src"],
+      "@image-host/provider-clients/*": ["../packages/provider-clients/src/*"],
+      "@image-host/shared": ["../packages/shared/src"],
+      "@image-host/shared/*": ["../packages/shared/src/*"],
+      "@image-host/web/*": ["../apps/web/src/*"],
+      "@image-host/api/*": ["../apps/api/src/*"]
+    }
+  },
+  "include": ["**/*.ts", "**/*.tsx", "../worker-configuration.d.ts", "../packages/backend-services/src/env.d.ts"]
+}

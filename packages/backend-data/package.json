@@ -2,11 +2,29 @@
   "name": "@image-host/backend-data",
   "version": "1.0.0",
   "private": true,
-  "main": "src/index.ts",
-  "types": "src/index.ts",
-  "scripts": { "typecheck": "tsc --noEmit" },
-  "dependencies": {
-    "@image-host/shared": "workspace:*"
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./dao": "./src/dao/index.ts",
+    "./dao/*": "./src/dao/*.ts",
+    "./presenters": "./src/presenters/index.ts",
+    "./presenters/*": "./src/presenters/*.ts",
+    "./utils": "./src/utils/index.ts",
+    "./utils/*": "./src/utils/*.ts"
   },
-  "devDependencies": { "typescript": "^6.0.3" }
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@image-host/shared": "workspace:*",
+    "@rexezuge/d1": "1.9.0",
+    "@rexezuge/errors": "1.9.0",
+    "@rexezuge/shared": "1.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.5",
+    "typescript": "6.0.3"
+  }
 }

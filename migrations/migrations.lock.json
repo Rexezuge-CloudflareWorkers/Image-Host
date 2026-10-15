@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "migrations": {
+    "0001_init.sql": "sha256:4243289d0cfd88684dbc8c13f3335509c0e67a1e11cdd68b2111908f13932e0a"
+  }
+}

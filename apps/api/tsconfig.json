@@ -1,9 +1,31 @@
 {
-  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "ignoreDeprecations": "6.0",
-    "baseUrl": ".",
-    "paths": { "@/*": ["src/*"] }
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "module": "ES2022",
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+    "allowJs": false,
+    "checkJs": false,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "@/*": ["./src/*"],
+      "@image-host/backend-data": ["../../packages/backend-data/src"],
+      "@image-host/backend-data/*": ["../../packages/backend-data/src/*"],
+      "@image-host/backend-services": ["../../packages/backend-services/src"],
+      "@image-host/backend-services/*": ["../../packages/backend-services/src/*"],
+      "@image-host/shared": ["../../packages/shared/src"],
+      "@image-host/shared/*": ["../../packages/shared/src/*"]
+    }
   },
-  "include": ["src/**/*.ts"]
+  // `worker-configuration.d.ts` at the repo root is the generated binding source
+  // and is where `D1Database` comes from. The checked-in `env.d.ts` in
+  // `backend-services` declares the global `Env` this project compiles against.
+  "include": ["../../worker-configuration.d.ts", "../../packages/backend-services/src/env.d.ts", "src/**/*.ts"],
+  "exclude": ["node_modules"]
 }

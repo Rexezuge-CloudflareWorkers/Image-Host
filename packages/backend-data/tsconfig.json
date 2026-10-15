@@ -1,4 +1,10 @@
 {
   "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@image-host/shared": ["../shared/src"],
+      "@image-host/shared/*": ["../shared/src/*"]
+    }
+  },
   "include": ["src/**/*.ts"]
 }

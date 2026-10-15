@@ -7,21 +7,38 @@
   "preview_urls": false,
   "workers_dev": true,
   "minify": true,
-  "observability": { "logs": { "enabled": true, "head_sampling_rate": 1, "invocation_logs": true, "persist": true } },
-  "assets": { "directory": "./apps/web/dist/" },
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "invocation_logs": true,
+      "persist": true,
+    },
+  },
+  "assets": {
+    "directory": "./apps/web/dist/",
+  },
   "d1_databases": [
     {
       "binding": "ImageHostDB",
       "database_id": "00000000-0000-0000-0000-000000000000",
-      "database_name": "image-host-db"
-    }
+      "database_name": "image-host-db",
+    },
+  ],
+  "secrets_store_secrets": [
+    {
+      "binding": "IMAGE_HOST_SECRETS",
+      "store_id": "00000000000000000000000000000000",
+      "secret_name": "image-host-telegram-bot-token",
+    },
   ],
   "vars": {
-    "POLICY_AUD": "you-cloudflare-zero-trust-application-aud",
-    "TEAM_DOMAIN": "https://your-team.cloudflareaccess.com",
-    "TG_CHAT_ID": "-1000000000000",
+    "ENVIRONMENT": "production",
+    "DEMO_MODE": "false",
+    "DEV_AUTH_EMAIL": "",
+    "POLICY_AUD": "",
+    "TEAM_DOMAIN": "",
     "MAX_UPLOAD_BYTES": "20971520",
-    "LOG_LEVEL": "info",
-    "ENVIRONMENT": "production"
-  }
+    "TELEGRAM_CHAT_ID": "",
+  },
 }

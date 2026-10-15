@@ -1,8 +1,20 @@
 packages:
   - 'apps/*'
   - 'packages/*'
+  # The test suite is a workspace project so `pnpm -r typecheck` and `pnpm run lint`
+  # actually reach it, and so pnpm links the bare specifiers its files import —
+  # pnpm's layout is strict, so `hono` lives in `apps/api/node_modules` and an
+  # unhooked `test/` could not resolve it.
   - 'test'
 allowBuilds:
   esbuild: true
-  sharp: true
   workerd: true
+minimumReleaseAgeExclude:
+  - '@rexezuge/d1@1.9.0'
+  - '@rexezuge/errors@1.9.0'
+  - '@rexezuge/http@1.9.0'
+  - '@rexezuge/identity@1.9.0'
+  - '@rexezuge/runtime@1.9.0'
+  - '@rexezuge/shared@1.9.0'
+  - '@rexezuge/tooling@1.9.0'
+  - '@rexezuge/web@1.9.0'

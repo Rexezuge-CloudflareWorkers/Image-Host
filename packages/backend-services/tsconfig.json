@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@image-host/backend-data": ["../backend-data/src"],
+      "@image-host/backend-data/*": ["../backend-data/src/*"],
+      "@image-host/provider-clients": ["../provider-clients/src"],
+      "@image-host/provider-clients/*": ["../provider-clients/src/*"],
+      "@image-host/shared": ["../shared/src"],
+      "@image-host/shared/*": ["../shared/src/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "../../worker-configuration.d.ts", "src/env.d.ts"]
+}

@@ -4,48 +4,271 @@ permissions:
   contents: read
 
 on:
+  repository_dispatch:
+    types:
+      - Upstream Sync Integration
   pull_request:
   push:
-    branches: [main]
+    branches:
+      - main
   workflow_dispatch:
 
+concurrency:
+  group: continuous-integration-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
+  # Typecheck and lint are separate jobs rather than one job running both, so a
+  # failure names the tool that broke and a retry re-runs only that half. They
+  # share nothing: `noEmit` everywhere, no project references, and ESLint builds
+  # its own TS program via `projectService`, so neither consumes the other's
+  # output.
   typecheck:
+    name: Typecheck
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-          cache: pnpm
-      - run: pnpm install
-      - run: pnpm run typecheck
 
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Setup Environment
+        uses: ./.github/actions/setup-env
+
+      # `pnpm run typecheck` reaches every workspace package *and* `scripts/` and
+      # `functions/` through `typecheck:scripts` / `typecheck:functions`. The latter
+      # two are not workspace projects, so a new directory there needs its own
+      # script or nothing checks it at all.
+      - name: Run Typecheck
+        uses: ./.github/actions/retry-step
+        with:
+          command: pnpm run typecheck
+          max_attempts: '2'
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Setup Environment
+        uses: ./.github/actions/setup-env
+
+      - name: Run Lint
+        uses: ./.github/actions/retry-step
+        with:
+          command: pnpm run lint
+          max_attempts: '2'
+
+  migrations:
+    name: Migration Lock
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Setup Environment
+        uses: ./.github/actions/setup-env
+
+      # Its own job rather than a step in `typecheck` or `lint`, so a failure
+      # names migrations instead of arriving inside a typecheck or lint log.
+      # Editing an already-applied migration is invisible to every other check:
+      # the deploy succeeds, fresh databases pick up the edited statements, and
+      # production keeps the schema it had. `images.owner_email` is `NOT NULL`, so
+      # a silent divergence here is a data-integrity break, not a cosmetic one.
+      - name: Verify Migration Lock
+        uses: ./.github/actions/retry-step
+        with:
+          command: pnpm run validate:migrations
+          max_attempts: '2'
+
+  god-files:
+    name: God Files
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Setup Environment
+        uses: ./.github/actions/setup-env
+
+      # Its own job, like `migrations`: a file growing past the limit is invisible
+      # to typecheck, lint, and the tests — they all pass perfectly well on a
+      # 500-line component. A separate job so the failure says "god-file" rather
+      # than arriving inside a lint log.
+      - name: Check God Files
+        uses: ./.github/actions/retry-step
+        with:
+          command: pnpm run check:god-files
+          max_attempts: '2'
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Setup Environment
+        uses: ./.github/actions/setup-env
+
+      # Coverage thresholds are asserted here rather than in a separate
+      # `coverage-floor` job: this repository's floors are aggregate-only, so the
+      # gate is the run failing, not a report left in an artefact.
+      - name: Run Tests with Coverage
+        uses: ./.github/actions/retry-step
+        with:
+          command: pnpm run test:coverage
+          max_attempts: '2'
+
+      - name: Upload Coverage Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 14
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Setup Environment
+        uses: ./.github/actions/setup-env
+
+      # The DAOs against a real D1 under workerd. Everything else in this workflow
+      # stubs the database, which is why `LIKE` escaping, `LIMIT ? OFFSET ?`
+      # binding, `meta.changes` on an ownership-scoped write, and the UNIQUE
+      # constraint `insert` retries on are only checkable here.
+      #
+      # `test/integration/**` is excluded from the root Vitest projects, so `pnpm
+      # test` stays container-free and this job is the only thing that needs the
+      # Workers runtime.
+      - name: Run Integration Tests
+        uses: ./.github/actions/retry-step
+        with:
+          command: pnpm run test:integration
+          max_attempts: '2'
+
+  # Only the SPA build. The API worker is typechecked by the `typecheck` job
+  # (`pnpm -r typecheck` reaches `apps/api`), so repeating it here ran the same
+  # `tsc --noEmit` against the same tsconfig a second time.
   build-web:
+    name: Build Web App
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-          cache: pnpm
-      - run: pnpm install
-      - run: pnpm --filter @image-host/web build
 
-  build-worker:
-    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Setup Environment
+        uses: ./.github/actions/setup-env
+
+      - name: Build Web App
+        run: pnpm --filter @image-host/web build
+
+  # Verifies the shell the API worker *serves*, which is a different artifact from
+  # `apps/web/dist/` — it is embedded into `apps/api/src/generated/spa-shell.ts` by
+  # the Vite plugin, and both are gitignored. A stale-but-present shell is a deploy
+  # that serves yesterday's operator UI.
+  #
+  # Its own job, and it builds first rather than depending on `build-web`, so the
+  # failure says "the served shell is wrong" instead of arriving inside a build log.
+  # That costs a second Vite build per run; the alternative — verifying inside
+  # `build-web` — is free and is the trade being made here.
+  #
+  # The build is a **precondition**, not a convenience: a fresh checkout has neither
+  # `apps/web/dist/` nor `apps/api/src/generated/`, and `postinstall` writes a
+  # deliberately minimal stub so `tsc` can resolve `SPA_HTML` before anyone has
+  # built. Verifying without building cannot pass, and fails with precisely the
+  # message the check exists to give.
+  spa-shell:
+    name: Verify SPA Shell
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Setup Environment
+        uses: ./.github/actions/setup-env
+
+      - name: Build Web App
+        run: pnpm --filter @image-host/web build
+
+      - name: Verify The SPA Shell
+        uses: ./.github/actions/retry-step
         with:
-          node-version: '24'
-          cache: pnpm
-      - run: pnpm install
-      - run: cp apps/api/wrangler.template.jsonc wrangler.jsonc
-      - run: pnpm exec wrangler deploy --dry-run
+          command: pnpm run verify:spa-shell
+          max_attempts: '2'
+
+  dependabot-auto-merge:
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.user.login == 'dependabot[bot]' && github.event.pull_request.state == 'open' && !github.event.repository.fork }}
+    name: Auto-Merge Dependabot PR
+    needs:
+      - typecheck
+      - lint
+      - migrations
+      - god-files
+      - unit-tests
+      - integration-tests
+      - build-web
+      - spa-shell
+    permissions:
+      contents: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Enable Auto-Merge
+        uses: ./.github/actions/retry-step
+        with:
+          command: gh pr merge --auto --merge "$PR_URL"
+          max_attempts: '5'
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+
+  dispatch-upstream-sync-deployment:
+    if: ${{ github.event_name == 'repository_dispatch' && github.event.action == 'Upstream Sync' }}
+    name: Dispatch Upstream Sync Deployment
+    needs:
+      - typecheck
+      - lint
+      - migrations
+      - god-files
+      - unit-tests
+      - integration-tests
+      - build-web
+      - spa-shell
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Dispatch Deployment
+        uses: ./.github/actions/retry-step
+        with:
+          command: >
+            printf '{"event_type":"Upstream Sync Deployment","client_payload":{"branch":"%s","sha":"%s"}}\n'
+            "$PAYLOAD_BRANCH" "$PAYLOAD_SHA"
+            | gh api repos/${{ github.repository }}/dispatches --method POST --input -
+          max_attempts: '2'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PAYLOAD_BRANCH: ${{ github.event.client_payload.branch || 'main' }}
+          PAYLOAD_SHA: ${{ github.event.client_payload.sha || github.sha }}
