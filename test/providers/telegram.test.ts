@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { BadGatewayError, UnauthorizedError, InternalServerError } from '@rexezuge/errors';
-import { TelegramClient } from '@image-host/provider-clients/telegram';
+import { TelegramClient, globalFetch } from '@image-host/provider-clients/telegram';
 import { urlOf } from '../helpers/fetchUrl';
 
 const env = { TELEGRAM_BOT_TOKEN: 'token-123', TELEGRAM_CHAT_ID: '-100999' };
@@ -158,6 +158,33 @@ describe('error taxonomy', () => {
     const denied = { ok: false, description: 'Unauthorized: bot 998877:AAEEsecret not found' };
     const client = new TelegramClient(env, stubFetch({ '/sendDocument': denied }) as unknown as typeof fetch);
     await expect(client.upload(new File(['x'], 'a.png'), 'a.png')).rejects.not.toThrow(/AAEEsecret/);
+  });
+});
+
+describe('the default fetch', () => {
+  // Every other test in this file injects a stub, so the default parameter — the
+  // only value production uses — would otherwise have no coverage at all. That is
+  // how the host shipped with the bare global: 15 green tests, 100% of Telegram
+  // broken.
+  it('is not the bare global, which workerd refuses to call as a method', () => {
+    // Identity is the whole assertion. Node's `fetch` is not receiver-checked, so
+    // this exact code passes under vitest and throws `Illegal invocation` in
+    // production — which is why the workerd suite has to carry the real guard.
+    expect(globalFetch).not.toBe(fetch);
+  });
+
+  it('still reaches globalThis.fetch when invoked as a method', async () => {
+    // Proves the wrapper delegates rather than being a no-op, and that calling it
+    // through a foreign receiver is what the fix is protecting.
+    const spy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('ok'));
+    try {
+      const holder = { call: globalFetch };
+      const response = await holder.call('https://api.telegram.org/bottest/getMe');
+      expect(spy).toHaveBeenCalledOnce();
+      await expect(response.text()).resolves.toBe('ok');
+    } finally {
+      spy.mockRestore();
+    }
   });
 });
 

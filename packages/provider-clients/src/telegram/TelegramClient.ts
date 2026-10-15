@@ -6,6 +6,31 @@ const API_BASE = 'https://api.telegram.org';
 const FILE_BASE = 'https://api.telegram.org/file';
 
 /**
+ * The global `fetch`, wrapped so it survives being called as a method.
+ *
+ * ### Why the wrapper exists
+ *
+ * On workerd `fetch` is not a free function. It is `JSG_METHOD(fetch)` on
+ * `ServiceWorkerGlobalScope`, so it must be invoked with `this === globalThis`.
+ * Store the bare global on an object and call it as a method — which is the
+ * obvious way to inject a `fetch` for testing — and the receiver becomes the
+ * holder, V8 rejects it, and every call throws `TypeError: Illegal invocation`
+ * before the native callback ever runs.
+ *
+ * `undefined` is the one receiver that is *also* valid: V8 converts it to the
+ * global proxy. So the same function value behaves correctly when called freely
+ * and fails when called as a method, which is what makes this read as arbitrary.
+ *
+ * The wrapper fixes the stored _value_ rather than the call site, so every
+ * `this.fetchImpl(...)` is receiver-safe without knowing whether the value is the
+ * default or an injected stub. `typeof fetch` is a plain function signature, so
+ * `tsc` and ESLint cannot see any of this, and Node's `fetch` is not
+ * receiver-checked, so the unit suite cannot either. The guard lives in
+ * `test/integration/telegram.int.test.ts`, which runs in workerd.
+ */
+export const globalFetch: typeof fetch = (input, init) => fetch(input, init);
+
+/**
 Telegram's own ceiling; exceeding it means `getFile` never returns a path.
 */
 const TELEGRAM_MAX_DOWNLOAD_BYTES = 20 * 1024 * 1024;
@@ -52,7 +77,7 @@ export interface TelegramClientEnv {
 export class TelegramClient {
   constructor(
     private readonly env: TelegramClientEnv,
-    private readonly fetchImpl: typeof fetch = fetch,
+    private readonly fetchImpl: typeof fetch = globalFetch,
   ) {}
 
   /**
