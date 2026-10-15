@@ -66,7 +66,7 @@ Plain `pnpm` is canonical. `pnpm --filter @image-host/web run build` resolves to
 
 ## The gates
 
-**Aggregate coverage is `83 / 63 / 84 / 85`** (statements / branches / functions / lines), against a measured 83.77 / 64.45 / 85.51 / 86.08. This is a _starting_ ratchet — raise it as coverage improves, and never lower it to make CI green.
+**Aggregate coverage is `85 / 66 / 87 / 87`** (statements / branches / functions / lines), against a measured 86.46 / 68.16 / 88.19 / 88.18. This is a _ratchet_ — raise it as coverage improves, and never lower it to make CI green. The last raise came with the console's drop zone: the hook and its pre-checks live under `apps/web/src/{hooks,lib}`, which is counted, rather than in the JSX that calls them, which is not.
 
 Read the report together with `pnpm run test:integration`: the node project reports `packages/backend-data/**` as thinly covered because the DAOs' real behaviour (`LIKE` escaping, `LIMIT ? OFFSET ?`, `meta.changes`) is exercised in the workerd suite instead, and that coverage is not reported by `test:coverage`.
 
