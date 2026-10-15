@@ -31,7 +31,11 @@ The Worker serves the SPA from its own page-route catch-all as `SPA_HTML`, embed
 | `IMAGE_HOST_SECRETS` | Secrets Store | template, `image-host-telegram-bot-token` |
 | `TELEGRAM_CHAT_ID`   | var           | template                                  |
 
-Vars: `ENVIRONMENT`, `DEMO_MODE`, `DEV_AUTH_EMAIL`, `POLICY_AUD`, `TEAM_DOMAIN`, `MAX_UPLOAD_BYTES`, `TELEGRAM_CHAT_ID`.
+Vars: `ENVIRONMENT`, `DEMO_MODE`, `DEV_AUTH_EMAIL`, `POLICY_AUD`, `TEAM_DOMAIN`, `MAX_UPLOAD_BYTES`, `VIEW_LOG_RETENTION_DAYS`, `TELEGRAM_CHAT_ID`.
+
+**The cron trigger lives in this template and only this one.** `triggers.crons` (`17 3 * * *`) drives `handleScheduled` — the daily `image_views` retention prune. The Pages target cannot carry it (Pages has no cron triggers), so a fork that points its custom domain at Pages still needs the Worker trigger in place, which `scripts/deploy/prepare-wrangler-config.ts` materializes from this template. `ensureConfigCoversTemplate` refuses a config that dropped it: a missing trigger has no symptom at deploy time and shows up only as a view log that grows forever. A deployer whose stored `WRANGLER_JSONC` predates the trigger therefore fails the next deploy until they regenerate it (or add `triggers.crons` to the stored copy) — deliberately, because the alternative is a prune that silently never runs.
+
+`VIEW_LOG_RETENTION_DAYS` (default 30, from `shared/constants`) is read by `ViewLogRetentionService`; a non-positive or non-numeric value falls back to the default rather than honouring a `0` that would empty the log on the next run.
 
 **A Secrets Store binding is not a record.** `IMAGE_HOST_SECRETS` is a `SecretsStoreSecret`: it carries no readable properties and hands the value over through an async `get()`, so the token is read with `await env.IMAGE_HOST_SECRETS.get()`. Reading `env.IMAGE_HOST_SECRETS.TELEGRAM_BOT_TOKEN` yields `undefined` on every request — including the ones where the secret is present and correct. The `secret_name` in the template is how the binding _resolves_ its value; it does not become a property of the binding object.
 
@@ -47,7 +51,7 @@ Nothing checks that `ServiceEnv` agrees with the generated `worker-configuration
 
 ## Migrations
 
-Apply with `pnpm exec wrangler d1 migrations apply image-host-db [--local|--remote]` (requires a materialized `wrangler.jsonc`, or pass `--config`). One file: `0001_init.sql`, creating `images` and `image_views`.
+Apply with `pnpm exec wrangler d1 migrations apply image-host-db [--local|--remote]` (requires a materialized `wrangler.jsonc`, or pass `--config`). Two files: `0001_init.sql`, creating `images` and `image_views`, and `0002_image_views_retention.sql`, adding the `viewed_at` index the retention prune scans by.
 
 D1 honours neither `PRAGMA foreign_keys = off` nor `PRAGMA legacy_alter_table = on`, and `defer_foreign_keys` does not suppress the `ON DELETE CASCADE` from `image_views.image_id` — so the cascade is real, and a hard `DELETE FROM images` would drop view rows whether or not that was intended. Soft delete avoids the question entirely.
 

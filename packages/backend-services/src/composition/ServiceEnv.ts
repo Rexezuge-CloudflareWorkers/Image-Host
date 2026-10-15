@@ -51,5 +51,11 @@ export interface ServiceEnv {
   TEAM_DOMAIN?: string;
   POLICY_AUD?: string;
   MAX_UPLOAD_BYTES?: string;
+  /**
+  How many days of `image_views` the daily prune keeps. Consumed by
+  `ViewLogRetentionService`; a non-positive value means the same as unset, and
+  the shared default applies.
+  */
+  VIEW_LOG_RETENTION_DAYS?: string;
   LOG_LEVEL?: string;
 }

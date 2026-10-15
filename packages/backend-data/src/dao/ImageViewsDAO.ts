@@ -43,6 +43,25 @@ export class ImageViewsDAO extends BaseDAO {
   }
 
   /**
+   * Deletes up to `batchSize` rows older than `cutoff`, returning how many went.
+   *
+   * `BaseDAO.deleteOlderThan` carries the SQL, the identifier allow-list and the
+   * retry policy — this repo-local method is the thin wrapper it was converged
+   * for. `DELETE ... LIMIT` is not supported by D1's SQLite build, so the batch
+   * boundary is a subquery with its own LIMIT; the cutoff is exclusive, and
+   * `viewed_at` compares correctly as a string because every row is written by
+   * `record` as a fixed-format UTC ISO-8601 timestamp.
+   *
+   * The returned count is load-bearing: the retention service loops until a
+   * batch comes back short, so a `0` here means "nothing old enough" — never
+   * "the delete did not happen", which is the reading that would let the table
+   * grow unbounded while the prune still reports success.
+   */
+  public pruneOlderThanBatch(cutoff: string, batchSize: number): Promise<number> {
+    return ImageViewsDAO.deleteOlderThan(this.database, 'image_views', 'viewed_at', cutoff, batchSize, 'id');
+  }
+
+  /**
   An owner's own view log. Never public — the referer and IP are personal data.
   */
   public async listForImage(imageId: number, ownerEmail: string, limit = 50): Promise<ImageViewRow[]> {
