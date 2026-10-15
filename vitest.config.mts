@@ -71,9 +71,13 @@ export default defineRepoVitestConfig({
 
   /**
    * A measured floor, set a little under the figures this suite actually reports
-   * (83.77 / 64.45 / 85.51 / 86.08) so ordinary churn does not fail the build but a
+   * (86.46 / 68.16 / 88.19 / 88.18) so ordinary churn does not fail the build but a
    * real regression does. Raise it as coverage improves — a floor nobody raises
    * stops saying anything.
+   *
+   * The last raise came with the console's drop zone: `useFileDrop` and its
+   * pre-checks are ordinary code under `apps/web/src/{hooks,lib}`, which this list
+   * counts, unlike the JSX that calls them.
    *
    * Branches is the weak number and is expected to be: most of the uncovered
    * branches are the Telegram client's failure paths and the auth service's
@@ -85,7 +89,7 @@ export default defineRepoVitestConfig({
    * backend-data/**` therefore looks low in the table below while being well
    * covered — read this report together with `pnpm run test:integration`.
    */
-  thresholds: { statements: 83, branches: 63, functions: 84, lines: 85 },
+  thresholds: { statements: 85, branches: 66, functions: 87, lines: 87 },
 
   reportsDirectory: './coverage',
 

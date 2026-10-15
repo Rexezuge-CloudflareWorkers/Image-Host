@@ -32,6 +32,9 @@ That last case is the subtle one. `fetch` follows redirects, so an Access-gated 
 - **No optimistic mutations.** `delete` and `block` await the server then reload. An optimistic delete the server rejects — and it can, with a 404 — would leave a row that no longer exists.
 - **A 401 anywhere sends the user to `/user/`.** The session can lapse while the console is open, and the probe is the only thing that can move the app back to the anonymous view.
 - **The multipart field name comes from `@image-host/shared/schema`.** The client and the server read the same constant, so they cannot drift into a 400 that only reproduces in a browser.
+- **A drag needs `dragover` cancelled, and file drags only.** Without it no `drop` is delivered and the browser opens the file — taking the console with it, which is the failure the drop zone exists to prevent. A _text_ drag must reach the browser untouched: cancelling that one is what would stop text being dropped into the library's search box. `useFileDrop` holds both halves.
+- **The drop zone highlights on a counter, not a boolean.** `dragleave` fires when the pointer moves onto a child of the zone, so a boolean flickers off mid-drag. `useFileDrop` is the only place that logic lives, and the enter/enter/leave case in `test/web/ConsoleView.test.tsx` is what pins it.
+- **Upload pre-checks assert the server's rules, they do not replace them.** `lib/upload.ts` mirrors `ImageService.upload`'s checks, order and wording against the same shared constants, so a refused file is named identically on both sides. The size ceiling is `UploadConstraints.maxBytes` — the constant, not a deployment's configured `MAX_UPLOAD_BYTES` — so the client can only ever be _looser_ than the server, which stays authoritative and still answers 413.
 - English UI text uses Title Case.
 
 ## Build
