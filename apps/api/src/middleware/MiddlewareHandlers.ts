@@ -43,7 +43,7 @@ export async function requireUser(c: ImageHostContext): Promise<string> {
  */
 async function authenticateUserIdentity(c: ImageHostContext): Promise<string> {
   const scope = getScope(c);
-  const service = scope.get(Tokens.ImageHostAuthService);
+  const service = await scope.get(Tokens.ImageHostAuthService);
   return service.getAuthenticatedUserEmail(c.req.raw, c.executionCtx as unknown as AccessIdentityContext);
 }
 

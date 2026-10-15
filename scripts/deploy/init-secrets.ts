@@ -62,9 +62,10 @@ const SECRET_RESOLVERS: Readonly<Record<string, () => Promise<string>>> = {
  * The bot token, from the environment.
  *
  * Trimmed and non-empty checked: a newline picked up from a multi-line secret
- * would be stored verbatim and then produce a 401 from Telegram on the first
- * upload, which reads as an authentication problem rather than a configuration
- * one.
+ * would be stored verbatim and then produce a `404 Not Found` from Telegram on
+ * the first upload — Telegram answers 404 when the token in the URL does not
+ * resolve to a bot, and its description is the bare string `Not Found`, which
+ * reads as a missing *method* rather than a bad credential.
  */
 async function resolveTelegramBotToken(): Promise<string> {
   const token = (process.env[TELEGRAM_TOKEN_ENV_VAR] ?? '').trim();

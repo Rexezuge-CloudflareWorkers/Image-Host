@@ -33,7 +33,7 @@ export function registerUserRoutes(app: Hono<AppEnv>): void {
       if (!parsed.success) {
         throw new BadRequestError('Invalid query parameters.');
       }
-      const images = getScope(c).get(Tokens.ImageService);
+      const images = await getScope(c).get(Tokens.ImageService);
       const page = await images.listOwned(ownerEmail(c), originOf(c), parsed.data.page, parsed.data.pageSize, parsed.data.q);
       return c.json({ success: true, ...page });
     }),
@@ -43,7 +43,7 @@ export function registerUserRoutes(app: Hono<AppEnv>): void {
     handle(async () => {
       const formData = await readForm(c);
       const file = readUploadedFile(formData);
-      const images = getScope(c).get(Tokens.ImageService);
+      const images = await getScope(c).get(Tokens.ImageService);
       const { image } = await images.upload(ownerEmail(c), originOf(c), file);
       // 201, not 200: the slug is new and the share link did not exist before.
       return c.json({ success: true, image }, 201);
@@ -53,7 +53,7 @@ export function registerUserRoutes(app: Hono<AppEnv>): void {
   app.delete('/user/images/:id', (c) =>
     handle(async () => {
       const id = parseId(c.req.param('id'));
-      await getScope(c).get(Tokens.ImageService).softDelete(ownerEmail(c), id);
+      await (await getScope(c).get(Tokens.ImageService)).softDelete(ownerEmail(c), id);
       return c.json({ success: true });
     }),
   );
@@ -66,7 +66,7 @@ export function registerUserRoutes(app: Hono<AppEnv>): void {
       if (!parsed.success) {
         throw new BadRequestError('Body must be { blocked: boolean }.');
       }
-      await getScope(c).get(Tokens.ImageService).setBlocked(ownerEmail(c), id, parsed.data.blocked);
+      await (await getScope(c).get(Tokens.ImageService)).setBlocked(ownerEmail(c), id, parsed.data.blocked);
       return c.json({ success: true });
     }),
   );

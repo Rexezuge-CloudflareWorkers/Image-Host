@@ -200,12 +200,19 @@ function unlike(pattern: string): string {
 
 /**
 A `ServiceEnv` wired to a `FakeD1` and a stubbed Telegram.
+
+`IMAGE_HOST_SECRETS` is shaped as the platform shapes it — an object whose only
+member is an async `get()` — rather than as a record of the store's contents.
+The old `{ TELEGRAM_BOT_TOKEN: 'test-token' }` double matched no runtime shape at
+all: the real binding carries no readable properties, so the route suite passed
+against a fixture that could not exist, while production read `undefined` on
+every request.
 */
 export function fakeEnv(overrides: Record<string, unknown> = {}) {
   const db = new FakeD1();
   const env = {
     ImageHostDB: db as unknown as D1Database,
-    IMAGE_HOST_SECRETS: { TELEGRAM_BOT_TOKEN: 'test-token' },
+    IMAGE_HOST_SECRETS: { get: async (): Promise<string> => 'test-token' },
     TELEGRAM_CHAT_ID: '-100999',
     ENVIRONMENT: 'development',
     // The local-only bypass, so the route suites do not need a signed JWT. The
