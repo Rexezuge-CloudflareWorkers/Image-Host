@@ -54,3 +54,19 @@ Every upload uses `sendDocument`, never `sendPhoto`. `sendPhoto` downsamples to 
 The cost is no inline preview in the Telegram client itself. That is an acceptable trade for a host whose product _is_ the file.
 
 One code path also means one thing to get wrong, rather than five MIME-specific branches — of which the predecessor's was missing the `audio` case entirely, so an uploaded sound file threw a `TypeError` and returned a 500.
+
+## `fetch` is a method on the global scope
+
+**Never store the bare global `fetch` and call it as a method of an object.** Inject `globalFetch` from `provider-clients/telegram` instead.
+
+On workerd `fetch` is not a free function. It is `JSG_METHOD(fetch)` on `ServiceWorkerGlobalScope`, so it must be invoked with `this === globalThis`. Store it on a class instance and call `this.fetchImpl(url)`, and the receiver becomes the instance — V8 rejects it before the native callback ever runs:
+
+```
+TypeError: Illegal invocation: function called with incorrect `this` reference.
+```
+
+`undefined` is the one receiver that is _also_ valid; V8 converts it to the global proxy. So the same function value works when called freely and fails when called as a method, which is what makes the bug read as arbitrary rather than as a rule. The wrapper in `globalFetch` fixes the stored _value_ rather than the call sites, so `this.fetchImpl(...)` is safe whether the value is the default or an injected stub.
+
+**Nothing but workerd can catch this.** `typeof fetch` is a plain function signature, so `tsc` and ESLint both see nothing. Node's `fetch` is not receiver-checked, so the same code passes under vitest — and every test in `test/providers/telegram.test.ts` injects a stub, meaning the default parameter had no coverage at all. The guard is [`test/integration/telegram.int.test.ts`](../../../test/integration/telegram.int.test.ts), which runs in workerd and is narrow on purpose: it asserts that a call leaves the isolate as a network attempt, not that Telegram behaves.
+
+This bit the whole client, not just uploads. `download`, `resolveFilePath` and `deleteMessage` share the same call, and `deleteMessage` catches every rejection by design — so a delete reported success while leaving the message and its bytes in the group forever.
