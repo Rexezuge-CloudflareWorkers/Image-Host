@@ -12,21 +12,22 @@ by `pnpm run lint` and `pnpm run typecheck:scripts`.
 
 ## What was ported from AWS-AccessBridge, and what changed
 
-Nine files are byte-identical to AWS-AccessBridge's copies. Nothing in them is
+Eight files are byte-identical to AWS-AccessBridge's copies. Nothing in them is
 AWS-specific — `check-god-files.mjs`, `spa-shell-checks.ts`,
 `verify-spa-shell.ts`, `lock-check.ts`, `verify-migrations.ts`,
-`wrangler-table.ts`, and the three generic `lib/wrangler-config/` modules are the
-family's converged versions, and re-deriving them here would be the drift the
-convergence exists to prevent.
+`wrangler-table.ts`, and the `cli.ts` / `patches.ts` modules are the family's
+converged versions, and re-deriving them here would be the drift the convergence
+exists to prevent.
 
-Four were adapted, each for a named reason:
+Five were adapted, each for a named reason:
 
-| File                                | Change                                                                                                   |
-| ----------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `lib/wrangler-config/types.ts`      | `DEFAULT_WORKER_NAME` → `image-host`; `DEFAULT_KV_NAMESPACE_NAMES` emptied (no KV here)                  |
-| `lib/wrangler-config/resources.ts`  | Comment only — the AWS binding name in a rationale                                                       |
-| `build/ensure-spa-shell-stub.ts`    | Stub title and `<div id="root">` text                                                                    |
-| `deploy/prepare-wrangler-config.ts` | Dropped the `created` step output — its only consumer was `backup-d1.yml`, which this repo does not ship |
+| File                                       | Change                                                                                                                                                                        |
+| ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `lib/wrangler-config/types.ts`             | `DEFAULT_WORKER_NAME` → `image-host`; `DEFAULT_KV_NAMESPACE_NAMES` emptied (no KV here)                                                                                       |
+| `lib/wrangler-config/resources.ts`         | Comment only — the AWS binding name in a rationale                                                                                                                            |
+| `lib/wrangler-config/template-coverage.ts` | `triggers.crons` is required too: a materialized config missing it deploys a worker whose retention prune silently never runs. A candidate for up-converging to the siblings. |
+| `build/ensure-spa-shell-stub.ts`           | Stub title and `<div id="root">` text                                                                                                                                         |
+| `deploy/prepare-wrangler-config.ts`        | Dropped the `created` step output — its only consumer was `backup-d1.yml`, which this repo does not ship                                                                      |
 
 `deploy/init-secrets.ts` was rewritten rather than edited; its header states why.
 
@@ -45,22 +46,22 @@ calls into `lib/wrangler-config/`.
 
 ## lib/
 
-| Module                                 | Contents                                                                                                   |
-| -------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `wrangler-config/types.ts`             | `wrangler.jsonc` paths, placeholder ids (`DEFAULT_UUID`, `DEFAULT_HEX_ID`), config interfaces.             |
-| `wrangler-config/cli.ts`               | `runWrangler`, `parseJsonArray`.                                                                           |
-| `wrangler-config/patches.ts`           | Read/rewrite `wrangler.jsonc`, `WRANGLER_JSONC` / `WRANGLER_PATCH_JSON` / `WRANGLER_VARS_PATCH_JSON`.      |
-| `wrangler-config/resources.ts`         | Create missing D1 / Secrets Store resources and patch their ids in.                                        |
-| `wrangler-config/template-coverage.ts` | Requires every binding name and `vars` key the template declares to be present in the materialized config. |
-| `wrangler-table.ts`                    | Parses the `cli-table3` output `wrangler secrets-store` prints.                                            |
+| Module                                 | Contents                                                                                                                     |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `wrangler-config/types.ts`             | `wrangler.jsonc` paths, placeholder ids (`DEFAULT_UUID`, `DEFAULT_HEX_ID`), config interfaces.                               |
+| `wrangler-config/cli.ts`               | `runWrangler`, `parseJsonArray`.                                                                                             |
+| `wrangler-config/patches.ts`           | Read/rewrite `wrangler.jsonc`, `WRANGLER_JSONC` / `WRANGLER_PATCH_JSON` / `WRANGLER_VARS_PATCH_JSON`.                        |
+| `wrangler-config/resources.ts`         | Create missing D1 / Secrets Store resources and patch their ids in.                                                          |
+| `wrangler-config/template-coverage.ts` | Requires every binding name, `vars` key and `triggers.crons` the template declares to be present in the materialized config. |
+| `wrangler-table.ts`                    | Parses the `cli-table3` output `wrangler secrets-store` prints.                                                              |
 
 **The coverage check is structural, not a version integer.** It requires every
-binding name and `vars` key the template declares to be _present_ in the
-materialized `wrangler.jsonc` — never equal, since a deployment fills
-`POLICY_AUD`/`TEAM_DOMAIN` with its own values. It runs _after_ both patches (so a
-var supplied by `WRANGLER_VARS_PATCH_JSON` counts) and _before_ provisioning, so a
-config that cannot deploy never creates a D1 database or a Secrets Store on the way
-to finding out.
+binding name, `vars` key and `triggers.crons` entry the template declares to be
+_present_ in the materialized `wrangler.jsonc` — never equal, since a deployment
+fills `POLICY_AUD`/`TEAM_DOMAIN` with its own values. It runs _after_ both patches
+(so a var supplied by `WRANGLER_VARS_PATCH_JSON` counts) and _before_
+provisioning, so a config that cannot deploy never creates a D1 database or a
+Secrets Store on the way to finding out.
 
 ## Running one locally
 

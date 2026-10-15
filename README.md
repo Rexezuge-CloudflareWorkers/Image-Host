@@ -17,6 +17,8 @@ Browser ──▶ Worker (image-host)          behind Cloudflare Access on /user
 
 The SPA is also deployed to Cloudflare Pages (`image-host-web`), which proxies every non-static path to the Worker over an `API_WORKER` service binding.
 
+The `image_views` telemetry log is a **rolling window**: the Worker's cron trigger (`triggers.crons`, daily) deletes rows older than `VIEW_LOG_RETENTION_DAYS` (30 by default). `view_count` on each image is the lifetime figure and is never decremented by the prune.
+
 ## Routes
 
 | Route                        | Auth       | Purpose                                       |

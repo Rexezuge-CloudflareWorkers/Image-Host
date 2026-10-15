@@ -16,6 +16,11 @@
     "types": [
       "vitest/globals",
       "vite/client",
+      // `test/scripts/*.test.ts` imports `scripts/lib/**`, which uses `node:fs`
+      // and `process`. `types` is an explicit list, so it *replaces* the repo
+      // root's `["node"]` rather than extending it — without this entry those
+      // imports fail with TS2591 the moment a test reaches into `scripts/`.
+      "node",
       // `cloudflare:test` — `test/integration/**` runs under the Workers pool and
       // imports it. Without this the module does not resolve, so typechecking those
       // files means nothing. It is an ambient declaration inside the pool's own
@@ -33,6 +38,7 @@
       "@image-host/shared": ["../packages/shared/src"],
       "@image-host/shared/*": ["../packages/shared/src/*"],
       "@image-host/web/*": ["../apps/web/src/*"],
+      "@image-host/api": ["../apps/api/src/index.ts"],
       "@image-host/api/*": ["../apps/api/src/*"]
     }
   },

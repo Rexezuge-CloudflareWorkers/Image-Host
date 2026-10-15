@@ -3,6 +3,7 @@ import { MiddlewareHandlers, noStoreHandler, scopeMiddleware, securityHeaders } 
 import type { AppEnv } from '@/types';
 import { registerPublicRoutes } from './routes/PublicRoutes';
 import { registerUserRoutes } from './routes/UserRoutes';
+import { handleScheduled } from './scheduled';
 import { toErrorResponse } from '@/errors/routeHelpers';
 import { SPA_HTML } from '@/generated/spa-shell';
 
@@ -102,6 +103,15 @@ export default {
   // `Promise<Response>` is a lie the Workers runtime would not catch at compile
   // time but would at runtime.
   fetch: async (request: Request, env: Env, ctx: ExecutionContext): Promise<Response> => app.fetch(request, env, ctx),
+
+  /**
+   * The cron surface: the daily `image_views` retention prune. One trigger (see
+   * `apps/api/wrangler.template.jsonc`), so the handler does not branch on
+   * `event.cron` — a second cadence would be the point to add that branch, and
+   * to keep the expression and the branch in sync the way Edge-Git's
+   * `SEARCH_TICK_CRON` documents.
+   */
+  scheduled: async (event: ScheduledController, env: Env): Promise<void> => handleScheduled(event, env),
 };
 
 export { type AppEnv } from '@/types';

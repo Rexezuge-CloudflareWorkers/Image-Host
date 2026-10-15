@@ -36,6 +36,10 @@ Every method here runs inside `waitUntil` on a **public** route, so a failure mu
 
 `listForImage` is owner-scoped through a join on `images`, and is never public: `referer` and `ip` are personal data.
 
+`pruneOlderThanBatch` is the retention half, run daily by `ViewLogRetentionService` under a cron trigger. It delegates to `BaseDAO.deleteOlderThan` — the family-wide helper this pattern was converged from — which allow-lists the identifiers and expresses the batch boundary as a subquery `LIMIT`, because D1's SQLite build has no `DELETE ... LIMIT`. `viewed_at` is a fixed-format UTC ISO string on every row, so the cutoff compares correctly as a string. The returned count is load-bearing: the service loops until a batch comes back short, so a silent `0` would let the table grow while the prune reported success.
+
+**The prune never touches `view_count`.** The counter is the owner-facing lifetime figure; the log is a rolling window behind it, and rows ageing out of that window must not rewrite history.
+
 ## `presentImage`
 
 `owner_email` and `file_id` are **deliberately not presented.** An owner's own listing does not need the address echoed back, and `file_id` is the Telegram handle — exposing it would let a reader construct a direct Telegram URL and bypass this host's block and delete state entirely.

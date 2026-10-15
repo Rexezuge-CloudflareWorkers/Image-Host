@@ -268,6 +268,72 @@ describe('ImageViewsDAO', () => {
     await views.recordAndCount(mine.id, 'https://referrer.example', '203.0.113.7');
     await expect(views.listForImage(mine.id, OTHER)).resolves.toHaveLength(0);
   });
+
+  /**
+   Inserts a view row with a chosen timestamp.
+
+   `record`/`recordAndCount` always stamp `now`, which is the one timestamp a
+   retention test cannot use — so the seed goes around the DAO and the prune is
+   the thing under test.
+
+   The `id` comes back from the insert rather than being assumed: `resetDatabase`
+   issues `DELETE`, which does not reset SQLite's AUTOINCREMENT counter, so ids
+   climb across a file.
+   */
+  async function seedView(imageId: number, viewedAt: string): Promise<number> {
+    const inserted = await db
+      .prepare('INSERT INTO image_views (image_id, referer, ip, viewed_at) VALUES (?, ?, ?, ?)')
+      .bind(imageId, 'direct', '203.0.113.9', viewedAt)
+      .run();
+    return inserted.meta.last_row_id;
+  }
+
+  it('prunes rows older than the cutoff and leaves the boundary row', async () => {
+    const mine = await insert();
+    const cutoff = '2026-05-01T00:00:00.000Z';
+    await seedView(mine.id, '2026-04-30T23:59:59.999Z');
+    // Exactly at the cutoff: the SQL is `<`, so the row survives. A `<=` would
+    // silently eat one extra instant on every run.
+    await seedView(mine.id, cutoff);
+    await seedView(mine.id, '2026-05-01T00:00:00.001Z');
+
+    await expect(views.pruneOlderThanBatch(cutoff, 100)).resolves.toBe(1);
+
+    // `listForImage` orders by id descending, so the surviving timestamps are the
+    // evidence that the boundary row specifically was kept, not merely that two
+    // rows remain.
+    const survivors = await views.listForImage(mine.id, OWNER);
+    expect(survivors.map((view) => view.viewed_at)).toEqual(['2026-05-01T00:00:00.001Z', cutoff]);
+  });
+
+  it('deletes at most one batch per call, oldest rows first', async () => {
+    const mine = await insert();
+    const cutoff = '2026-05-01T00:00:00.000Z';
+    const oldest = await seedView(mine.id, '2026-04-01T00:00:00.000Z');
+    await seedView(mine.id, '2026-04-02T00:00:00.000Z');
+    await seedView(mine.id, '2026-04-03T00:00:00.000Z');
+
+    // `DELETE ... LIMIT` is not supported by D1's SQLite build; the batch
+    // boundary is the subquery's LIMIT, and this is the assertion that it holds.
+    await expect(views.pruneOlderThanBatch(cutoff, 1)).resolves.toBe(1);
+
+    const remaining = await views.listForImage(mine.id, OWNER);
+    // `listForImage` orders by id descending, so the survivor set is what proves
+    // *which* row the batch took: the oldest went and the two newer rows stayed.
+    expect(remaining.map((row) => row.id)).toEqual([oldest + 2, oldest + 1]);
+  });
+
+  it('never touches the view counter', async () => {
+    // `view_count` is the lifetime figure the owner sees; the log is a rolling
+    // window behind it. A prune that decremented the counter would rewrite
+    // history every night.
+    const mine = await insert();
+    await views.recordAndCount(mine.id, 'direct', '203.0.113.7');
+    await seedView(mine.id, '2026-01-01T00:00:00.000Z');
+
+    await expect(views.pruneOlderThanBatch('2026-05-01T00:00:00.000Z', 100)).resolves.toBe(1);
+    await expect(images.getOwned(mine.id, OWNER)).resolves.toMatchObject({ view_count: 1 });
+  });
 });
 
 describe('schema', () => {
@@ -288,6 +354,17 @@ describe('schema', () => {
     const dao = new ImagesDAO(db);
     await dao.insert(row(), () => 'duplicateSlug001');
     await expect(dao.insert(row({ file_id: 'other' }), () => 'duplicateSlug001')).rejects.toThrow(/UNIQUE/i);
+  });
+
+  it('carries the index the retention prune scans by', async () => {
+    // A drop from `0001`'s schema would not fail any behaviour test — the prune
+    // still deletes the right rows, it just scans the whole table per batch. The
+    // index is part of the prune's contract, so its absence is asserted here.
+    const db = await useDatabase();
+    const { results } = await db
+      .prepare(`SELECT name FROM sqlite_master WHERE type = 'index' AND name = 'idx_image_views_viewed_at'`)
+      .all<{ name: string }>();
+    expect(results.map((row) => row.name)).toEqual(['idx_image_views_viewed_at']);
   });
 
   it('resolves the D1 binding declared in the test wrangler config', () => {

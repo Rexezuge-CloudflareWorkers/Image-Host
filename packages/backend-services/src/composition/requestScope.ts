@@ -1,5 +1,6 @@
 import { ImagesDAO, ImageViewsDAO } from '@image-host/backend-data/dao';
 import { ImageService } from '../image';
+import { ViewLogRetentionService } from '../maintenance';
 import { ImageHostAuthService } from '../auth';
 import { TelegramClient } from '@image-host/provider-clients/telegram';
 import { TELEGRAM_CHAT_ID_VAR, TELEGRAM_SECRETS_BINDING, TELEGRAM_TOKEN_SECRET } from '@image-host/shared/constants';
@@ -45,6 +46,7 @@ export class Container {
     [Tokens.ImageViewsDAO]: async () => new ImageViewsDAO(this.env.ImageHostDB),
     [Tokens.ImageService]: async () =>
       new ImageService(this.env, await this.get(Tokens.ImagesDAO), await this.telegramClient(), await this.get(Tokens.ImageViewsDAO)),
+    [Tokens.ViewLogRetentionService]: async () => new ViewLogRetentionService(this.env, await this.get(Tokens.ImageViewsDAO)),
     [Tokens.ImageHostAuthService]: async () => new ImageHostAuthService(this.env),
   };
 

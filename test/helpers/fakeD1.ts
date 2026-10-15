@@ -152,6 +152,20 @@ export class FakeD1 {
       this.table('image_views').push({ id: this.nextId('image_views'), image_id: imageId, referer, ip, viewed_at: viewedAt });
       return { success: true, meta: { changes: 1 } };
     }
+    if (normalised.startsWith('DELETE FROM image_views WHERE id IN')) {
+      // The retention prune's batched delete. `viewed_at` is a fixed-format UTC
+      // ISO string on every row, so the string comparison here is the same
+      // comparison SQLite makes against the bound cutoff — `<` is strict, which
+      // is what keeps a row exactly at the cutoff alive.
+      const [cutoff, limit] = bindings;
+      const table = this.table('image_views');
+      const doomed = table.filter((row) => String(row.viewed_at) < String(cutoff)).slice(0, Number(limit));
+      const doomedIds = new Set(doomed.map((row) => row.id));
+      const kept = table.filter((row) => !doomedIds.has(row.id));
+      table.length = 0;
+      table.push(...kept);
+      return { success: true, meta: { changes: doomed.length } };
+    }
     if (normalised.startsWith('DELETE FROM')) {
       // `resetDatabase` empties both tables in dependency order.
       this.table('image_views').length = 0;

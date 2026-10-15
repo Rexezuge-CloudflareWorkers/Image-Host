@@ -35,7 +35,8 @@ function isRequiredKey(key: string): boolean {
 }
 
 /**
- * Every binding name and var a config declares, grouped by the field each lives in.
+ * Every binding name, var and cron trigger a config declares, grouped by the
+ * field each lives in.
  *
  * One table for both sides of the comparison, because two copies of this list would
  * drift and a key present on only one side reads as a permanent false gap.
@@ -43,12 +44,16 @@ function isRequiredKey(key: string): boolean {
  * Presence is all that is ever compared, never the value: a deployment fills
  * `POLICY_AUD` and `TEAM_DOMAIN` with its own real values through
  * `WRANGLER_VARS_PATCH_JSON`, so an equality check would fail every legitimate
- * override. `durable_objects` and `services` are in the table because nothing else
- * heals their absence — a config missing `CRON_TASKS` or `SELF` deploys a worker
- * whose scheduled pipeline and internal self-calls are silently dead.
+ * override. `durable_objects`, `services` and `triggers.crons` are in the table
+ * because nothing else heals their absence — a config missing `CRON_TASKS` or
+ * `SELF` deploys a worker whose scheduled pipeline and internal self-calls are
+ * silently dead, and a config missing its cron trigger deploys one whose
+ * scheduled cleanup simply never runs. An empty `crons` list reads as absent
+ * for the same reason: it schedules nothing.
  */
 function collectKeys(config: WranglerConfig): Map<string, string[]> {
   const durableObjectBindings = (config.durable_objects?.bindings ?? []).map((binding) => binding.name);
+  const cronTriggers = config.triggers?.crons;
   const fields: Array<[string, Array<string | undefined>]> = [
     ['d1_databases[].binding', (config.d1_databases ?? []).map((database) => database.binding)],
     ['kv_namespaces[].binding', (config.kv_namespaces ?? []).map((namespace) => namespace.binding)],
@@ -56,6 +61,7 @@ function collectKeys(config: WranglerConfig): Map<string, string[]> {
     ['durable_objects.bindings[].name', durableObjectBindings],
     ['services[].binding', (config.services ?? []).map((service) => service.binding)],
     ['vars', Object.keys(config.vars ?? {})],
+    ['triggers.crons', Array.isArray(cronTriggers) && cronTriggers.length > 0 ? ['crons'] : []],
   ];
 
   return new Map(fields.map(([field, keys]) => [field, keys.filter((key): key is string => typeof key === 'string')]));

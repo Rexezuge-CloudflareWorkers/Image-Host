@@ -14,6 +14,7 @@ export interface ImageHostEnv {
   TEAM_DOMAIN?: string;
   POLICY_AUD?: string;
   MAX_UPLOAD_BYTES?: string;
+  VIEW_LOG_RETENTION_DAYS?: string;
   LOG_LEVEL?: string;
 }
 
@@ -102,6 +103,19 @@ export class AppConfiguration {
     return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
   }
 
+  /**
+   * How many days of `image_views` the scheduled prune keeps.
+   *
+   * The same parse as `getMaxUploadBytes`: a non-positive or non-numeric value
+   * falls back to the caller's default rather than being honoured. `0` reads as
+   * "delete everything on the next run", which is never what the var was meant
+   * to say, and the failure mode of guessing is a silently emptied log.
+   */
+  public getViewLogRetentionDays(fallback: number): number {
+    const parsed = Number(this.env.VIEW_LOG_RETENTION_DAYS);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+  }
+
   private flag(value: string | undefined): boolean {
     return (value ?? '').trim().toLowerCase() === 'true';
   }
@@ -129,5 +143,8 @@ export const ConfigurationManager = {
   },
   limits: {
     getMaxUploadBytes: (env: unknown, fallback: number): number => AppConfiguration.fromEnv(env).getMaxUploadBytes(fallback),
+  },
+  telemetry: {
+    getViewLogRetentionDays: (env: unknown, fallback: number): number => AppConfiguration.fromEnv(env).getViewLogRetentionDays(fallback),
   },
 };

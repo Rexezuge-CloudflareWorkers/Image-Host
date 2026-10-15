@@ -25,6 +25,12 @@
       "database_name": "image-host-db",
     },
   ],
+  "triggers": {
+    // The daily `image_views` retention prune, handled by `handleScheduled`.
+    // Only this Worker target may carry it: the Pages SPA has no cron triggers.
+    // 03:17 UTC — daily, off the hour where trigger traffic is thinnest.
+    "crons": ["17 3 * * *"],
+  },
   "secrets_store_secrets": [
     {
       "binding": "IMAGE_HOST_SECRETS",
@@ -39,6 +45,7 @@
     "POLICY_AUD": "",
     "TEAM_DOMAIN": "",
     "MAX_UPLOAD_BYTES": "20971520",
+    "VIEW_LOG_RETENTION_DAYS": "30",
     "TELEGRAM_CHAT_ID": "",
   },
 }

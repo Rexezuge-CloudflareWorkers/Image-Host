@@ -1,6 +1,7 @@
 {
   "version": 1,
   "migrations": {
-    "0001_init.sql": "sha256:4243289d0cfd88684dbc8c13f3335509c0e67a1e11cdd68b2111908f13932e0a"
+    "0001_init.sql": "sha256:4243289d0cfd88684dbc8c13f3335509c0e67a1e11cdd68b2111908f13932e0a",
+    "0002_image_views_retention.sql": "sha256:9eb15f115afe59aa8982aee851e2dd012cc17c17cea773004140df54c36c5b66"
   }
 }

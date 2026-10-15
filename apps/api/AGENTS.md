@@ -3,7 +3,8 @@
 Scope: `apps/api/**`. Parent index: [`../../AGENTS.md`](../../AGENTS.md). Runtime and bindings: [`../../docs/agents/runtime/AGENTS.md`](../../docs/agents/runtime/AGENTS.md).
 
 - `src/index.ts` — `fetch` via `ImageHostWorker`.
-- `src/workers/ImageHostWorker.ts` — Hono routes, **no Chanfana file-routing**. `createApp()` is a factory, not a module singleton, so a test gets an isolated app and the middleware ordering is visible in one place.
+- `src/workers/ImageHostWorker.ts` — Hono routes, **no Chanfana file-routing**. `createApp()` is a factory, not a module singleton, so a test gets an isolated app and the middleware ordering is visible in one place. Its default export carries both surfaces: `fetch` and `scheduled`.
+- `src/workers/scheduled.ts` — the cron surface: the daily `image_views` retention prune, wired to `triggers.crons` in `apps/api/wrangler.template.jsonc`. A plain `scheduled` export rather than a Durable Object alarm: the prune is periodic, global and idempotent — overlapping runs are harmless — whereas the family reserves alarms for entity-scoped deferred work (see `AWS-AccessBridge`/`Edge-Git`). It resolves `ViewLogRetentionService` through `createRequestScope(env)`, like a route resolves its services, and lets errors propagate so a failed run is visible rather than swallowed.
 - `src/types.ts` — `AppEnv` / `AppVariables` / `ImageHostContext`. Named context properties, so `c.get('Scope')` is typed and a typo is a compile error.
 - `src/middleware/` — `securityHeaders` (`*`), `scopeMiddleware` (`*`), `noStoreHandler` + `csrfProtection` + `userAuthentication` (`/user/*`).
 - `src/errors/routeHelpers.ts` — `handle()` wraps every route body; `app.onError` covers middleware and the catch-all. No path reaches the client that skips the mask.

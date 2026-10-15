@@ -10,7 +10,8 @@
     "./auth": "./src/auth/index.ts",
     "./composition": "./src/composition/index.ts",
     "./config": "./src/config/index.ts",
-    "./image": "./src/image/index.ts"
+    "./image": "./src/image/index.ts",
+    "./maintenance": "./src/maintenance/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

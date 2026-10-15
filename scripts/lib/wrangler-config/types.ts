@@ -64,6 +64,9 @@ export const PROVISIONED_TEMPLATE_KEYS: ReadonlySet<string> = new Set(Object.key
 export interface WranglerConfig {
   name?: string;
   vars?: Record<string, unknown> | null;
+  triggers?: {
+    crons?: unknown;
+  };
   d1_databases?: Array<{
     binding?: string;
     database_id?: string;
