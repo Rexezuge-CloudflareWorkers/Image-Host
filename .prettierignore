@@ -1,0 +1,6 @@
+node_modules
+coverage
+pnpm-lock.yaml
+worker-configuration.d.ts
+apps/web/dist
+apps/api/src/generated

@@ -2,14 +2,20 @@
   "name": "@image-host/api",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "main": "src/index.ts",
-  "scripts": { "typecheck": "tsc --noEmit" },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
   "dependencies": {
     "@image-host/backend-data": "workspace:*",
+    "@image-host/backend-services": "workspace:*",
     "@image-host/shared": "workspace:*",
-    "hono": "^4.13.12",
-    "chanfana": "^3.4.0",
-    "zod": "^4.6.5"
+    "@rexezuge/errors": "1.9.0",
+    "hono": "^4.13.12"
   },
-  "devDependencies": { "typescript": "^6.0.3", "@types/node": "^26.6.5" }
+  "devDependencies": {
+    "@types/node": "26.6.5",
+    "typescript": "6.0.3"
+  }
 }

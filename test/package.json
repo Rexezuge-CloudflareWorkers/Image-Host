@@ -1,0 +1,35 @@
+{
+  "name": "@image-host/test",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "//": "A workspace project so `pnpm -r typecheck` and `pnpm run lint` reach this directory, and so pnpm links the bare specifiers its files import \u2014 pnpm's layout is strict, so an unhooked `test/` cannot resolve `hono` at all. The tsconfig maps the workspace path aliases; only bare specifiers are listed here, and each is pinned to the same range a sibling package declares so the store holds one copy.",
+  "scripts": {
+    "//typecheck": "The 4 GB floor is a measurement, not a precaution. Under pnpm's default heap this project is killed by V8 while checking files that import most of the workspace, and tsc emits no `error TS` line when it dies \u2014 so the failure is indistinguishable from a clean run to anything grepping the output.",
+    "typecheck": "NODE_OPTIONS=--max-old-space-size=4096 tsc --noEmit"
+  },
+  "dependencies": {
+    "@image-host/backend-data": "workspace:*",
+    "@image-host/backend-services": "workspace:*",
+    "@image-host/provider-clients": "workspace:*",
+    "@image-host/shared": "workspace:*",
+    "@cloudflare/vitest-pool-workers": "0.23.0",
+    "@rexezuge/errors": "1.9.0",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "hono": "^4.13.12",
+    "jose": "^6.2.11",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.5",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "jsdom": "^30.1.2",
+    "typescript": "6.0.3",
+    "vite": "8.3.2",
+    "vitest": "4.1.11"
+  }
+}

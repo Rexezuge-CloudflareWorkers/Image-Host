@@ -1,0 +1,31 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "image-host-integration-test",
+  "main": "self.ts",
+  "compatibility_date": "2025-11-29",
+  "d1_databases": [
+    {
+      "binding": "ImageHostDB",
+      "database_name": "image-host-test-db",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+    },
+  ],
+  "secrets_store_secrets": [
+    {
+      "binding": "IMAGE_HOST_SECRETS",
+      "store_id": "00000000000000000000000000000000",
+      "secret_name": "image-host-telegram-bot-token",
+    },
+  ],
+  "vars": {
+    "ENVIRONMENT": "development",
+    // Not "production": the harness sets DEV_AUTH_EMAIL in vars, which is the exact
+    // mistake the production guard exists to catch. A test asserting that guard
+    // overrides it for its own request.
+    "DEV_AUTH_EMAIL": "integration@example.com",
+    "TELEGRAM_CHAT_ID": "-1000000000000",
+    "POLICY_AUD": "test-aud",
+    "TEAM_DOMAIN": "https://test.cloudflareaccess.com",
+    "MAX_UPLOAD_BYTES": "20971520",
+  },
+}
