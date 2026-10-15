@@ -11,7 +11,7 @@ Browser ──▶ Worker (image-host)          behind Cloudflare Access on /user
               └─ GET /i/:slug     → image bytes, public
                    │
                    ├─ D1             ImageHostDB (images, image_views)
-                   ├─ Secrets Store  IMAGE_HOST_SECRETS.TELEGRAM_BOT_TOKEN
+                   ├─ Secrets Store  IMAGE_HOST_SECRETS → await .get()
                    └─ Telegram Bot API → the group
 ```
 

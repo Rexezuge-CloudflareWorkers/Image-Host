@@ -56,7 +56,7 @@ export function registerPublicRoutes(app: Hono<AppEnv>): void {
  *    Images are meant to be embedded.
  */
 async function serveSharedImage(c: ImageHostContext, slug: string): Promise<Response> {
-  const images = getScope(c).get(Tokens.ImageService);
+  const images = await getScope(c).get(Tokens.ImageService);
 
   const row = await images.resolveShare(slug);
   const upstream = await images.download(row);

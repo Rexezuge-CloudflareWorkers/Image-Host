@@ -71,3 +71,5 @@ Two details are load-bearing, not stylistic:
 **The catch-all serves the shell only for `/user/*`.** `/i/` is an exact registered route and can never reach it, but the guard is explicit rather than relying on that: a catch-all that fell through would answer a dead share link with a 200 and an HTML page.
 
 **Routes never import `provider-clients` or a DAO.** The lint boundary forbids it (type-only for DAOs), and `ImageService` exposes `download` / `recordView` so there is a supported way in. The `Container` is the only place a `TelegramClient` is constructed, under a private key absent from the public token table — so the boundary holds by construction, not convention.
+
+**`scope.get(...)` returns a promise.** Reading the bot token is an `await` on a Secrets Store binding, so the container resolves services asynchronously — `await getScope(c).get(Tokens.ImageService)`. It caches the _promise_, so a factory runs once and concurrent callers share one result; a rejection is cached with it, which is right because the binding will still be absent on the next request. `getScope(c)` itself stays synchronous: it only reads the context.
