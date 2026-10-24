@@ -21,7 +21,7 @@
     "@image-host/provider-clients": "workspace:*",
     "@image-host/shared": "workspace:*",
     "@rexezuge/errors": "1.9.0",
-    "@rexezuge/shared": "1.9.0",
+    "@rexezuge/shared": "1.9.2",
     "jose": "^6.2.11"
   },
   "devDependencies": {
