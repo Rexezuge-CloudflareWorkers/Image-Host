@@ -24,8 +24,8 @@ importers:
         specifier: 1.9.0
         version: 1.9.0
       '@rexezuge/tooling':
-        specifier: 1.9.0
-        version: 1.9.0(eslint-config-prettier@10.1.8(eslint@10.12.0))(eslint-plugin-prettier@5.5.7(eslint-config-prettier@10.1.8(eslint@10.12.0))(eslint@10.12.0)(prettier@3.9.10))(eslint-plugin-regexp@3.3.1(eslint@10.12.0))(eslint-plugin-sonarjs@4.2.2(eslint@10.12.0))(eslint-plugin-unicorn@76.0.0(eslint@10.12.0))(eslint@10.12.0)(globals@17.13.0)(jsonc-parser@3.3.1)(prettier@3.9.10)(typescript-eslint@8.71.2(eslint@10.12.0)(typescript@6.0.3))(typescript@6.0.3)(vitest@4.1.11)
+        specifier: 1.9.2
+        version: 1.9.2(eslint-config-prettier@10.1.8(eslint@10.12.0))(eslint-plugin-prettier@5.5.7(eslint-config-prettier@10.1.8(eslint@10.12.0))(eslint@10.12.0)(prettier@3.9.10))(eslint-plugin-regexp@3.3.1(eslint@10.12.0))(eslint-plugin-sonarjs@4.2.2(eslint@10.12.0))(eslint-plugin-unicorn@76.0.0(eslint@10.12.0))(eslint@10.12.0)(globals@17.13.0)(jsonc-parser@3.3.1)(prettier@3.9.10)(typescript-eslint@8.71.2(eslint@10.12.0)(typescript@6.0.3))(typescript@6.0.3)(vitest@4.1.11)
       '@testing-library/jest-dom':
         specifier: ^7.0.1
         version: 7.0.1(@testing-library/dom@10.4.2)(vitest@4.1.11)
@@ -125,8 +125,8 @@ importers:
         version: 19.3.0(react@19.3.0)
     devDependencies:
       '@rexezuge/tooling':
-        specifier: 1.9.0
-        version: 1.9.0(eslint-config-prettier@10.1.8(eslint@10.12.0))(eslint-plugin-prettier@5.5.7(eslint-config-prettier@10.1.8(eslint@10.12.0))(eslint@10.12.0)(prettier@3.9.10))(eslint-plugin-regexp@3.3.1(eslint@10.12.0))(eslint-plugin-sonarjs@4.2.2(eslint@10.12.0))(eslint-plugin-unicorn@76.0.0(eslint@10.12.0))(eslint@10.12.0)(globals@17.13.0)(jsonc-parser@3.3.1)(prettier@3.9.10)(typescript-eslint@8.71.2(eslint@10.12.0)(typescript@6.0.3))(typescript@6.0.3)(vitest@4.1.11)
+        specifier: 1.9.2
+        version: 1.9.2(eslint-config-prettier@10.1.8(eslint@10.12.0))(eslint-plugin-prettier@5.5.7(eslint-config-prettier@10.1.8(eslint@10.12.0))(eslint@10.12.0)(prettier@3.9.10))(eslint-plugin-regexp@3.3.1(eslint@10.12.0))(eslint-plugin-sonarjs@4.2.2(eslint@10.12.0))(eslint-plugin-unicorn@76.0.0(eslint@10.12.0))(eslint@10.12.0)(globals@17.13.0)(jsonc-parser@3.3.1)(prettier@3.9.10)(typescript-eslint@8.71.2(eslint@10.12.0)(typescript@6.0.3))(typescript@6.0.3)(vitest@4.1.11)
       '@types/node':
         specifier: 26.6.5
         version: 26.6.5
@@ -1268,8 +1268,14 @@ packages:
   '@rexezuge/d1@1.9.0':
     resolution: {integrity: sha512-XONq3ibNEEZcJR2Rl0SYl/fWe6EQt4T89MNWPkNr8QqWxRUGk5PER0GwMn8fCsQuRfFr8JxshHWU9a1zbXOd/w==}
 
+  '@rexezuge/d1@1.9.2':
+    resolution: {integrity: sha512-/9YPjn2WEKs53iY3upw7Yix6w4ANw6+CqhebuMVWqCOcoMSVd510JnQgQhGa2LqXOKqXEbkmDxjZopfVrD9aiw==}
+
   '@rexezuge/errors@1.9.0':
     resolution: {integrity: sha512-5pALUuuI0h2ZLnLnNAmBb7f8SXvv87tr2rtszIbnkPhn2LPfYDGRLiAFNVqPZpG204FMuNcaiYydDwxkGhsXzw==}
+
+  '@rexezuge/errors@1.9.2':
+    resolution: {integrity: sha512-2LBY01Ly8ZJH8YF3pqTfYGFF56WslywFiC3HeeEXSBSD0nKXA6WsELUa/xPbMXIhKnVz8z+UtgshuHsHlSMOeg==}
 
   '@rexezuge/runtime@1.9.0':
     resolution: {integrity: sha512-DNTkGgcBjtuzA1gI00Z6r6XWX2lhP0CkguMJFEM1/APRAByHekTZ0plTkwb7NkmQGl3boS+qUwhBI1QdwmlmMg==}
@@ -1277,8 +1283,11 @@ packages:
   '@rexezuge/shared@1.9.0':
     resolution: {integrity: sha512-tTKhzLkK+HEbFturGcSsbHFANOz5kjHmO/wgDMbMJ1N8s4xhaTtsIy92ZoX39Ix1zRw77agsBaGhU7wpdzqDsw==}
 
-  '@rexezuge/tooling@1.9.0':
-    resolution: {integrity: sha512-6+mO4hXbhdyJR0XxEeXElIqk6d7QtJSluxlHyGPp525wKZfT3q626r5LxB4wX2Pp7jhQ0nEfxD1N28vNmZQzQA==}
+  '@rexezuge/shared@1.9.2':
+    resolution: {integrity: sha512-B9PsD8vbAOSNa5TRlH7eXMVTSDxq3KZ+v3eU9SyWyywbtSc21AZkjHjqBoEQkfx3IkfFnBFa6jg5x/PagBtMLA==}
+
+  '@rexezuge/tooling@1.9.2':
+    resolution: {integrity: sha512-8C6J7r5NFwtoODwWo/3LPwcbngIf0p/8EZQZjJYrWUMjVT/qM8dYM3pk0Em6T5f1VyWA0L/IlPLnfX4awx3nxQ==}
     peerDependencies:
       eslint: ^10.0.0
       eslint-config-prettier: ^10.1.8
@@ -3371,15 +3380,24 @@ snapshots:
       '@rexezuge/errors': 1.9.0
       '@rexezuge/shared': 1.9.0
 
+  '@rexezuge/d1@1.9.2':
+    dependencies:
+      '@rexezuge/errors': 1.9.2
+      '@rexezuge/shared': 1.9.2
+
   '@rexezuge/errors@1.9.0': {}
+
+  '@rexezuge/errors@1.9.2': {}
 
   '@rexezuge/runtime@1.9.0': {}
 
   '@rexezuge/shared@1.9.0': {}
 
-  '@rexezuge/tooling@1.9.0(eslint-config-prettier@10.1.8(eslint@10.12.0))(eslint-plugin-prettier@5.5.7(eslint-config-prettier@10.1.8(eslint@10.12.0))(eslint@10.12.0)(prettier@3.9.10))(eslint-plugin-regexp@3.3.1(eslint@10.12.0))(eslint-plugin-sonarjs@4.2.2(eslint@10.12.0))(eslint-plugin-unicorn@76.0.0(eslint@10.12.0))(eslint@10.12.0)(globals@17.13.0)(jsonc-parser@3.3.1)(prettier@3.9.10)(typescript-eslint@8.71.2(eslint@10.12.0)(typescript@6.0.3))(typescript@6.0.3)(vitest@4.1.11)':
+  '@rexezuge/shared@1.9.2': {}
+
+  '@rexezuge/tooling@1.9.2(eslint-config-prettier@10.1.8(eslint@10.12.0))(eslint-plugin-prettier@5.5.7(eslint-config-prettier@10.1.8(eslint@10.12.0))(eslint@10.12.0)(prettier@3.9.10))(eslint-plugin-regexp@3.3.1(eslint@10.12.0))(eslint-plugin-sonarjs@4.2.2(eslint@10.12.0))(eslint-plugin-unicorn@76.0.0(eslint@10.12.0))(eslint@10.12.0)(globals@17.13.0)(jsonc-parser@3.3.1)(prettier@3.9.10)(typescript-eslint@8.71.2(eslint@10.12.0)(typescript@6.0.3))(typescript@6.0.3)(vitest@4.1.11)':
     dependencies:
-      '@rexezuge/d1': 1.9.0
+      '@rexezuge/d1': 1.9.2
       eslint: 10.12.0
       eslint-config-prettier: 10.1.8(eslint@10.12.0)
       eslint-plugin-prettier: 5.5.7(eslint-config-prettier@10.1.8(eslint@10.12.0))(eslint@10.12.0)(prettier@3.9.10)

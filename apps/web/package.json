@@ -14,7 +14,7 @@
     "react-dom": "^19.2.8"
   },
   "devDependencies": {
-    "@rexezuge/tooling": "1.9.0",
+    "@rexezuge/tooling": "1.9.2",
     "@types/node": "26.6.5",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
