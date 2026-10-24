@@ -18,8 +18,8 @@ importers:
         specifier: 1.9.0
         version: 1.9.0
       '@rexezuge/runtime':
-        specifier: 1.9.0
-        version: 1.9.0
+        specifier: 1.9.2
+        version: 1.9.2
       '@rexezuge/shared':
         specifier: 1.9.0
         version: 1.9.0
@@ -1277,8 +1277,8 @@ packages:
   '@rexezuge/errors@1.9.2':
     resolution: {integrity: sha512-2LBY01Ly8ZJH8YF3pqTfYGFF56WslywFiC3HeeEXSBSD0nKXA6WsELUa/xPbMXIhKnVz8z+UtgshuHsHlSMOeg==}
 
-  '@rexezuge/runtime@1.9.0':
-    resolution: {integrity: sha512-DNTkGgcBjtuzA1gI00Z6r6XWX2lhP0CkguMJFEM1/APRAByHekTZ0plTkwb7NkmQGl3boS+qUwhBI1QdwmlmMg==}
+  '@rexezuge/runtime@1.9.2':
+    resolution: {integrity: sha512-OfAtxqhCpt9QON1pNBY0IyRc5xEeX3UlkBg5cS1cqzq6FKisL4a/jvV6dJDYZzWCcJAMxzPDfWS1JY3Nj2tbXw==}
 
   '@rexezuge/shared@1.9.0':
     resolution: {integrity: sha512-tTKhzLkK+HEbFturGcSsbHFANOz5kjHmO/wgDMbMJ1N8s4xhaTtsIy92ZoX39Ix1zRw77agsBaGhU7wpdzqDsw==}
@@ -3389,7 +3389,7 @@ snapshots:
 
   '@rexezuge/errors@1.9.2': {}
 
-  '@rexezuge/runtime@1.9.0': {}
+  '@rexezuge/runtime@1.9.2': {}
 
   '@rexezuge/shared@1.9.0': {}
 
