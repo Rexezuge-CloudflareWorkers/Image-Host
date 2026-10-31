@@ -11,7 +11,7 @@
     "@image-host/backend-data": "workspace:*",
     "@image-host/backend-services": "workspace:*",
     "@image-host/shared": "workspace:*",
-    "@rexezuge/errors": "1.9.0",
+    "@rexezuge/errors": "1.9.2",
     "hono": "^4.13.14"
   },
   "devDependencies": {

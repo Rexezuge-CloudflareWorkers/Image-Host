@@ -20,7 +20,7 @@
     "@image-host/backend-data": "workspace:*",
     "@image-host/provider-clients": "workspace:*",
     "@image-host/shared": "workspace:*",
-    "@rexezuge/errors": "1.9.0",
+    "@rexezuge/errors": "1.9.2",
     "@rexezuge/shared": "1.9.2",
     "jose": "^6.2.11"
   },

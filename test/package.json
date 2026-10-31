@@ -14,7 +14,7 @@
     "@image-host/provider-clients": "workspace:*",
     "@image-host/shared": "workspace:*",
     "@cloudflare/vitest-pool-workers": "0.23.0",
-    "@rexezuge/errors": "1.9.0",
+    "@rexezuge/errors": "1.9.2",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
     "hono": "^4.13.14",
