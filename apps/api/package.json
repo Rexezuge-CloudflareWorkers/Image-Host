@@ -12,7 +12,7 @@
     "@image-host/backend-services": "workspace:*",
     "@image-host/shared": "workspace:*",
     "@rexezuge/errors": "1.9.0",
-    "hono": "^4.13.12"
+    "hono": "^4.13.14"
   },
   "devDependencies": {
     "@types/node": "26.6.5",
