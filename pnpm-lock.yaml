@@ -21,8 +21,8 @@ importers:
         specifier: 1.9.2
         version: 1.9.2
       '@rexezuge/shared':
-        specifier: 1.9.2
-        version: 1.9.2
+        specifier: 1.9.4
+        version: 1.9.4
       '@rexezuge/tooling':
         specifier: 1.9.2
         version: 1.9.2(eslint-config-prettier@10.1.8(eslint@10.14.0))(eslint-plugin-prettier@5.5.7(eslint-config-prettier@10.1.8(eslint@10.14.0))(eslint@10.14.0)(prettier@3.9.10))(eslint-plugin-regexp@3.3.3(eslint@10.14.0))(eslint-plugin-sonarjs@4.2.2(eslint@10.14.0))(eslint-plugin-unicorn@76.0.0(eslint@10.14.0))(eslint@10.14.0)(globals@17.13.0)(jsonc-parser@3.3.1)(prettier@3.9.10)(typescript-eslint@8.72.1(eslint@10.14.0)(typescript@6.0.3))(typescript@6.0.3)(vitest@4.1.11)
@@ -158,8 +158,8 @@ importers:
         specifier: 1.9.0
         version: 1.9.0
       '@rexezuge/shared':
-        specifier: 1.9.2
-        version: 1.9.2
+        specifier: 1.9.4
+        version: 1.9.4
     devDependencies:
       '@types/node':
         specifier: 26.6.5
@@ -183,8 +183,8 @@ importers:
         specifier: 1.9.0
         version: 1.9.0
       '@rexezuge/shared':
-        specifier: 1.9.2
-        version: 1.9.2
+        specifier: 1.9.4
+        version: 1.9.4
       jose:
         specifier: ^6.2.11
         version: 6.2.12
@@ -205,8 +205,8 @@ importers:
         specifier: 1.9.0
         version: 1.9.0
       '@rexezuge/shared':
-        specifier: 1.9.2
-        version: 1.9.2
+        specifier: 1.9.4
+        version: 1.9.4
     devDependencies:
       '@types/node':
         specifier: 26.6.5
@@ -1293,6 +1293,9 @@ packages:
 
   '@rexezuge/shared@1.9.2':
     resolution: {integrity: sha512-B9PsD8vbAOSNa5TRlH7eXMVTSDxq3KZ+v3eU9SyWyywbtSc21AZkjHjqBoEQkfx3IkfFnBFa6jg5x/PagBtMLA==}
+
+  '@rexezuge/shared@1.9.4':
+    resolution: {integrity: sha512-VphnyKOKvT2zsK2A3bgtBPd6sfhIREsY8fdx68QDn6ApxhduqNbrT1K4q6Wlf/d8bIMk6biycxXkjM1ICngSmA==}
 
   '@rexezuge/tooling@1.9.2':
     resolution: {integrity: sha512-8C6J7r5NFwtoODwWo/3LPwcbngIf0p/8EZQZjJYrWUMjVT/qM8dYM3pk0Em6T5f1VyWA0L/IlPLnfX4awx3nxQ==}
@@ -3406,6 +3409,8 @@ snapshots:
   '@rexezuge/shared@1.9.0': {}
 
   '@rexezuge/shared@1.9.2': {}
+
+  '@rexezuge/shared@1.9.4': {}
 
   '@rexezuge/tooling@1.9.2(eslint-config-prettier@10.1.8(eslint@10.14.0))(eslint-plugin-prettier@5.5.7(eslint-config-prettier@10.1.8(eslint@10.14.0))(eslint@10.14.0)(prettier@3.9.10))(eslint-plugin-regexp@3.3.3(eslint@10.14.0))(eslint-plugin-sonarjs@4.2.2(eslint@10.14.0))(eslint-plugin-unicorn@76.0.0(eslint@10.14.0))(eslint@10.14.0)(globals@17.13.0)(jsonc-parser@3.3.1)(prettier@3.9.10)(typescript-eslint@8.72.1(eslint@10.14.0)(typescript@6.0.3))(typescript@6.0.3)(vitest@4.1.11)':
     dependencies:
